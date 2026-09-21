@@ -1,6 +1,10 @@
 package com.finsight.service;
 
+import com.finsight.dto.user.UserCreateRequest;
+import com.finsight.dto.user.UserResponse;
+import com.finsight.dto.user.UserUpdateRequest;
 import com.finsight.entity.User;
+import com.finsight.exception.ResourceNotFoundException;
 import com.finsight.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
@@ -9,40 +13,100 @@ import java.util.List;
 @Service
 public class UserService {
 
-    private final UserRepository repository;
+    private final UserRepository userRepository;
 
-    public UserService(UserRepository repository) {
-        this.repository = repository;
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
-    public List<User> findAll() {
-        return repository.findAll();
+    public List<UserResponse> findAll() {
+        return userRepository.findAll()
+                .stream()
+                .map(this::toResponse)
+                .toList();
     }
 
-    public User findById(Long id) {
-        return repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+    public UserResponse findById(Long id) {
+
+        User user = userRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Usuário não encontrado com id: " + id
+                        )
+                );
+
+        return toResponse(user);
     }
 
-    public User save(User user) {
-        return repository.save(user);
-    }
+    public UserResponse create(UserCreateRequest request) {
 
-    public User update(Long id, User data) {
-        User user = findById(id);
-
-        user.setName(data.getName());
-        user.setEmail(data.getEmail());
-
-        if (data.getPassword() != null && !data.getPassword().isBlank()) {
-            user.setPassword(data.getPassword());
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new IllegalArgumentException(
+                    "Já existe um usuário cadastrado com este e-mail."
+            );
         }
 
-        return repository.save(user);
+        User user = new User();
+
+        user.setName(request.getName());
+        user.setEmail(request.getEmail());
+        user.setPassword(request.getPassword());
+
+        User savedUser = userRepository.save(user);
+
+        return toResponse(savedUser);
+    }
+
+    public UserResponse update(
+            Long id,
+            UserUpdateRequest request
+    ) {
+
+        User user = userRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Usuário não encontrado com id: " + id
+                        )
+                );
+
+        if (request.getName() != null) {
+            user.setName(request.getName());
+        }
+
+        if (request.getEmail() != null) {
+            user.setEmail(request.getEmail());
+        }
+
+        if (request.getPassword() != null &&
+                !request.getPassword().isBlank()) {
+
+            user.setPassword(request.getPassword());
+        }
+
+        User updatedUser = userRepository.save(user);
+
+        return toResponse(updatedUser);
     }
 
     public void delete(Long id) {
-        User user = findById(id);
-        repository.delete(user);
+
+        User user = userRepository.findById(id)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Usuário não encontrado com id: " + id
+                        )
+                );
+
+        userRepository.delete(user);
+    }
+
+    private UserResponse toResponse(User user) {
+
+        return new UserResponse(
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                user.getCreatedAt()
+        );
     }
 }

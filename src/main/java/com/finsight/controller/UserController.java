@@ -1,8 +1,12 @@
 package com.finsight.controller;
 
-import com.finsight.entity.User;
+import com.finsight.dto.user.UserCreateRequest;
+import com.finsight.dto.user.UserResponse;
+import com.finsight.dto.user.UserUpdateRequest;
 import com.finsight.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -12,39 +16,53 @@ import java.util.List;
 @CrossOrigin(origins = "http://localhost:5173")
 public class UserController {
 
-    private final UserService service;
+    private final UserService userService;
 
-    public UserController(UserService service) {
-        this.service = service;
+    public UserController(UserService userService) {
+        this.userService = userService;
     }
 
     @GetMapping
-    public List<User> findAll() {
-        return service.findAll();
+    public ResponseEntity<List<UserResponse>> findAll() {
+        return ResponseEntity.ok(
+                userService.findAll()
+        );
     }
 
     @GetMapping("/{id}")
-    public User findById(@PathVariable Long id) {
-        return service.findById(id);
+    public ResponseEntity<UserResponse> findById(
+            @PathVariable Long id
+    ) {
+        return ResponseEntity.ok(
+                userService.findById(id)
+        );
     }
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public User create(@RequestBody User user) {
-        return service.save(user);
+    public ResponseEntity<UserResponse> create(
+            @Valid @RequestBody UserCreateRequest request
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(userService.create(request));
     }
 
-    @PutMapping("/{id}")
-    public User update(
+    @PatchMapping("/{id}")
+    public ResponseEntity<UserResponse> update(
             @PathVariable Long id,
-            @RequestBody User user
+            @Valid @RequestBody UserUpdateRequest request
     ) {
-        return service.update(id, user);
+        return ResponseEntity.ok(
+                userService.update(id, request)
+        );
     }
 
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void delete(@PathVariable Long id) {
-        service.delete(id);
+    public ResponseEntity<Void> delete(
+            @PathVariable Long id
+    ) {
+        userService.delete(id);
+
+        return ResponseEntity.noContent().build();
     }
 }
