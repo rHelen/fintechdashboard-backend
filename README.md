@@ -19,19 +19,51 @@ src/main/java/com/finsight/
 ├── FinSightApplication.java
 ├── config/CorsConfig.java
 ├── controller/
+│   ├── AccountController.java
+│   ├── BudgetController.java
+│   ├── CategoryController.java
 │   ├── DashboardController.java
-│   └── TransactionController.java
+│   ├── GoalController.java
+│   ├── TransactionController.java
+│   └── UserController.java
+│
 ├── dto/
-│   ├── DashboardSummaryResponse.java
-│   ├── MonthlyFinancialResponse.java
-│   └── TransactionResponse.java
-├── exception/
-│   ├── GlobalExceptionHandler.java
-│   └── ResourceNotFoundException.java
-├── model/Transaction.java
+│   ├── account/
+│   ├── budget/
+│   ├── category/
+│   ├── dashboard/
+│   ├── goal/
+│   ├── transaction/
+│   └── user/
+|
+├── entity/
+│   ├── Account.java
+│   ├── Budget.java
+│   ├── Category.java
+│   ├── Goal.java
+│   ├── Transaction.java
+│   └── User.java
+│
+├── enums/
+│   ├── AccountType.java
+│   ├── TransactionStatus.java
+│   └── TransactionType.java
+│
+├── repository/
+│   ├── AccountRepository.java
+│   ├── BudgetRepository.java
+│   ├── CategoryRepository.java
+│   ├── GoalRepository.java
+│   ├── TransactionRepository.java
+│   └── UserRepository.java
+│
 └── service/
-    ├── DashboardService.java
-    └── TransactionService.java
+    ├── AccountService.java
+    ├── BudgetService.java
+    ├── CategoryService.java
+    ├── GoalService.java
+    ├── TransactionService.java
+    └── UserService.java
 ```
 
 ## Pré-requisitos
